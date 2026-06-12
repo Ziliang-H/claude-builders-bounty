@@ -34,6 +34,43 @@ You're in the right place.
 
 ---
 
+## Generate a Changelog
+
+Create a structured `CHANGELOG.md` from commits since the latest git tag:
+
+1. Run `bash changelog.sh` or `python generate_changelog.py`.
+2. Review `CHANGELOG.md`.
+3. Commit the generated file when it looks right.
+
+The script skips merge commits and sorts commit subjects into `Added`, `Fixed`,
+`Changed`, and `Removed`.
+
+Example output:
+
+```markdown
+# Changelog
+
+Generated from git history for all commits on 2026-06-12.
+
+### Added
+
+- feat: initial README with bounty board
+
+### Fixed
+
+- None
+
+### Changed
+
+- None
+
+### Removed
+
+- None
+```
+
+---
+
 ## Rules
 
 - Tasks must be related to Claude Code or AI tooling
