@@ -1,0 +1,20 @@
+name: Claude Review
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+      - name: Generate structured PR review
+        run: |
+          python claude_review.py --pr "${{ github.event.pull_request.html_url }}" >> "$GITHUB_STEP_SUMMARY"
