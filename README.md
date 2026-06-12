@@ -38,9 +38,11 @@ You're in the right place.
 
 Create a structured `CHANGELOG.md` from commits since the latest git tag:
 
-1. Run `bash changelog.sh` or `python generate_changelog.py`.
+1. Run `bash changelog.sh` or `python3 generate_changelog.py`.
 2. Review `CHANGELOG.md`.
 3. Commit the generated file when it looks right.
+
+Requires Python 3.8 or newer.
 
 The script skips merge commits and sorts commit subjects into `Added`, `Fixed`,
 `Changed`, and `Removed`.

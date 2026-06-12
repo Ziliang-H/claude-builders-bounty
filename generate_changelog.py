@@ -7,9 +7,10 @@ import datetime as dt
 import subprocess
 import sys
 from pathlib import Path
+from typing import Dict, List, Optional
 
 
-def git(*args: str, check: bool = True) -> subprocess.CompletedProcess[str]:
+def git(*args: str, check: bool = True) -> subprocess.CompletedProcess:
     return subprocess.run(
         ["git", *args],
         check=check,
@@ -19,33 +20,41 @@ def git(*args: str, check: bool = True) -> subprocess.CompletedProcess[str]:
     )
 
 
-def latest_tag() -> str | None:
+def latest_tag() -> Optional[str]:
     result = git("describe", "--tags", "--abbrev=0", check=False)
     tag = result.stdout.strip()
     return tag or None
 
 
-def commit_subjects(commit_range: str) -> list[str]:
+def commit_subjects(commit_range: str) -> List[str]:
     result = git("log", "--no-merges", "--pretty=format:%s", commit_range)
     return [line for line in result.stdout.splitlines() if line.strip()]
 
 
 def categorize(subject: str) -> str:
     lowered = subject.lower()
-    added_markers = ("feat:", "add:", "added:")
-    fixed_markers = ("fix:", "bug:", "bugfix:")
-    removed_markers = ("remove:", "removed:", "delete:", "deleted:")
+    added_prefixes = ("feat:", "add:", "added:", "add ", "adds ", "added ", "implement ", "implements ")
+    fixed_prefixes = ("fix:", "bug:", "bugfix:", "fix ", "fixes ", "fixed ", "bug ")
+    removed_prefixes = ("remove:", "removed:", "delete:", "deleted:", "remove ", "removes ", "removed ", "delete ", "deletes ")
 
-    if lowered.startswith(added_markers) or lowered.startswith(("add ", "adds ", "added ", "implement ", "implements ")) or any(marker in lowered for marker in (" add ", " adds ", " added ", " implement ", " implements ")):
+    if starts_with_any(lowered, added_prefixes) or contains_any(lowered, (" add ", " adds ", " added ", " implement ", " implements ")):
         return "Added"
-    if lowered.startswith(fixed_markers) or lowered.startswith(("fix ", "fixes ", "fixed ", "bug ")) or any(marker in lowered for marker in (" fix ", " fixes ", " fixed ", " bug ")):
+    if starts_with_any(lowered, fixed_prefixes) or contains_any(lowered, (" fix ", " fixes ", " fixed ", " bug ")):
         return "Fixed"
-    if lowered.startswith(removed_markers) or lowered.startswith(("remove ", "removes ", "removed ", "delete ", "deletes ")) or any(marker in lowered for marker in (" remove ", " removes ", " removed ", " delete ", " deletes ")):
+    if starts_with_any(lowered, removed_prefixes) or contains_any(lowered, (" remove ", " removes ", " removed ", " delete ", " deletes ")):
         return "Removed"
     return "Changed"
 
 
-def section(title: str, entries: list[str]) -> str:
+def starts_with_any(value: str, prefixes: tuple) -> bool:
+    return value.startswith(prefixes)
+
+
+def contains_any(value: str, markers: tuple) -> bool:
+    return any(marker in value for marker in markers)
+
+
+def section(title: str, entries: List[str]) -> str:
     lines = [f"### {title}", ""]
     if entries:
         lines.extend(f"- {entry}" for entry in entries)
@@ -66,7 +75,7 @@ def main() -> int:
     commit_range = f"{tag}..HEAD" if tag else "HEAD"
     range_label = f"since {tag}" if tag else "for all commits"
 
-    buckets: dict[str, list[str]] = {
+    buckets: Dict[str, List[str]] = {
         "Added": [],
         "Fixed": [],
         "Changed": [],
@@ -77,7 +86,7 @@ def main() -> int:
     for subject in subjects:
         buckets[categorize(subject)].append(subject)
 
-    today = dt.datetime.now(dt.UTC).strftime("%Y-%m-%d")
+    today = dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%d")
     changelog = [
         "# Changelog",
         "",
