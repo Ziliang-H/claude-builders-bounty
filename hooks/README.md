@@ -8,7 +8,8 @@ Claude Code `PreToolUse` hook that blocks destructive Bash commands before they 
 bash hooks/install.sh
 ```
 
-Add this hook to your Claude Code settings for the `PreToolUse` event and the `Bash` tool:
+Add this hook to your Claude Code settings for the `PreToolUse` event and the `Bash` tool.
+Replace `/home/you` with your absolute home directory:
 
 ```json
 {
@@ -19,7 +20,7 @@ Add this hook to your Claude Code settings for the `PreToolUse` event and the `B
         "hooks": [
           {
             "type": "command",
-            "command": "~/.claude/hooks/destructive_bash_guard.py"
+            "command": "/home/you/.claude/hooks/destructive_bash_guard.py"
           }
         ]
       }
