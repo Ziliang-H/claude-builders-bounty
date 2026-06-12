@@ -26,7 +26,7 @@ BLOCK_RULES: Tuple[Tuple[str, re.Pattern[str], str], ...] = (
     ),
     (
         "force push",
-        re.compile(r"(?is)\bgit\s+push\b[^\n;&|]*(?:--force(?:-with-lease)?|-f)(?:\s|$)"),
+        re.compile(r"(?is)\bgit\s+push\b[^\n;&|]*(?:--force(?:-with-lease)?(?:=\S+)?|-f)(?:\s|$)"),
         "git push --force can overwrite shared history.",
     ),
     (

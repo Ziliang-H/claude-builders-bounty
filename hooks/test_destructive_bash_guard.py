@@ -51,6 +51,7 @@ def main() -> int:
             "npm test || rm -rf build",
             "psql -c 'DROP TABLE users'",
             "git push --force origin main",
+            "git push --force-with-lease=main origin main",
             "sqlite3 app.db 'TRUNCATE sessions'",
             "sqlite3 app.db 'DELETE FROM users;'",
         ):
@@ -66,7 +67,7 @@ def main() -> int:
 
         log_path = tmp_home / ".claude" / "hooks" / "blocked.log"
         entries = [json.loads(line) for line in log_path.read_text(encoding="utf-8").splitlines()]
-        assert len(entries) == 7
+        assert len(entries) == 8
         assert all("timestamp" in entry and "project_path" in entry and "command" in entry for entry in entries)
 
         invalid_json = subprocess.run(
