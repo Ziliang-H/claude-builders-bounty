@@ -17,4 +17,4 @@ jobs:
           python-version: "3.x"
       - name: Generate structured PR review
         run: |
-          python claude_review.py --pr "${{ github.event.pull_request.html_url }}" >> "$GITHUB_STEP_SUMMARY"
+          python3 claude_review.py --pr "${{ github.event.pull_request.html_url }}" >> "$GITHUB_STEP_SUMMARY"

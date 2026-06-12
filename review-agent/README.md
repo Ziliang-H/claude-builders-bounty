@@ -1,12 +1,14 @@
 # Claude Review Agent
 
-`claude-review` is a zero-dependency CLI that reviews a public GitHub pull request diff and prints a structured Markdown review comment.
+`claude-review` is a Python 3 CLI with no third-party package dependencies. It reviews a public GitHub pull request diff and prints a structured Markdown review comment.
 
 ## Setup
 
 ```bash
 chmod +x claude-review
 ```
+
+The CLI requires Python 3 and outbound network access to `github.com` so it can download the public `.diff` for the target pull request.
 
 ## Usage
 

@@ -13,7 +13,7 @@ from typing import Iterable, List
 
 
 PR_RE = re.compile(r"^https://github\.com/([^/]+)/([^/]+)/pull/(\d+)(?:[/?#].*)?$")
-FILE_RE = re.compile(r"^\+\+\+ b/(.+)$")
+DIFF_FILE_RE = re.compile(r"^diff --git a/(.+) b/(.+)$")
 HUNK_RE = re.compile(r"^@@")
 
 
@@ -56,9 +56,9 @@ def analyze_diff(diff: str) -> DiffStats:
     hunks = 0
 
     for line in diff.splitlines():
-        file_match = FILE_RE.match(line)
-        if file_match and file_match.group(1) != "/dev/null":
-            files.append(file_match.group(1))
+        file_match = DIFF_FILE_RE.match(line)
+        if file_match:
+            files.append(file_match.group(2))
         elif line.startswith("+") and not line.startswith("+++"):
             additions += 1
         elif line.startswith("-") and not line.startswith("---"):
@@ -72,11 +72,24 @@ def analyze_diff(diff: str) -> DiffStats:
         additions=additions,
         deletions=deletions,
         hunks=hunks,
-        has_tests=any("test" in path or "spec" in path for path in normalized),
+        has_tests=any(is_test_path(path) for path in normalized),
         has_docs=any(path.endswith((".md", ".mdx", ".rst")) or "docs/" in path for path in normalized),
         has_workflows=any(path.startswith(".github/workflows/") for path in normalized),
         has_lockfile=any(path.endswith(("package-lock.json", "pnpm-lock.yaml", "yarn.lock", "poetry.lock")) for path in normalized),
         has_deletions=deletions > additions * 2 and deletions > 20,
+    )
+
+
+def is_test_path(path: str) -> bool:
+    segments = path.split("/")
+    if any(segment in {"test", "tests", "spec", "specs"} for segment in segments[:-1]):
+        return True
+
+    filename = segments[-1]
+    return (
+        filename.startswith(("test_", "spec_"))
+        or filename.endswith(("_test.py", "_spec.py", ".test.js", ".spec.js", ".test.ts", ".spec.ts"))
+        or filename.endswith(("_test.go", "_test.rs", "_test.rb", "_spec.rb"))
     )
 
 
